@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: blockchain_price_tracker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=nestjsuser
+      - POSTGRES_PASSWORD=nestjspassword
+      - POSTGRES_DB=blockchain_price_tracker
+      - CG_PRO_API_KEY=
+      - SENDER_EMAIL=
+      - SENDER_PASSWORD=
+      - RECIEVER_EMAIL=hyperhire_assignment@hyperhire.in
+    depends_on:
+      - postgres
+    volumes:
+      - .:/usr/src/app
+    command: npm run start:dev
+
+  postgres:
+    container_name: postgres
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: nestjsuser
+      POSTGRES_PASSWORD: nestjspassword
+      POSTGRES_DB: blockchain_price_tracker
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
