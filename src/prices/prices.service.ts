@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { Cron } from '@nestjs/schedule';
 import { AlertSetting, Price } from './entities/price.entity';
@@ -10,6 +10,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import * as process from 'node:process';
 import { PricesListDto, TokeNames } from './dto/prices-list.dto';
 import { CreatePriceAlertDto } from './dto/create-price.dto';
+import { UpdatePriceAlertDto } from './dto/update-price.dto';
 
 @Injectable()
 export class PricesService {
@@ -229,6 +230,45 @@ export class PricesService {
 
     if (getPriceAlert) {
       await this.sendAlertEmail(chain, value, 0, true, getPriceAlert?.email);
+    }
+  }
+  // In prices.service.ts
+  async updatePriceAlertLimit(
+    id: number,
+    dto: UpdatePriceAlertDto,
+  ): Promise<AlertSetting> {
+    try {
+      const alert = await this.alertSettingRepository.findOne({
+        where: { id },
+      });
+
+      if (!alert) {
+        throw new NotFoundException('Price alert not found');
+      }
+
+      alert.dollar = dto.dollar;
+      alert.chain = dto.chain;
+      alert.email = dto.email;
+
+      return this.alertSettingRepository.save(alert);
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+  async deletePriceAlertLimit(id: number): Promise<boolean> {
+    try {
+      const alert = await this.alertSettingRepository.findOne({
+        where: { id },
+      });
+
+      if (!alert) {
+        throw new NotFoundException('Price alert not found');
+      }
+
+      await this.alertSettingRepository.remove(alert);
+      return true;
+    } catch (err) {
+      return Promise.reject(err);
     }
   }
 }

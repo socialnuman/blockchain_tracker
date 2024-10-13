@@ -1,9 +1,20 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { PricesService } from './prices.service';
 import { ApiQuery } from '@nestjs/swagger';
 import { PricesListDto } from './dto/prices-list.dto';
 import { AlertSetting } from './entities/price.entity';
 import { CreatePriceAlertDto } from './dto/create-price.dto';
+import { UpdatePriceAlertDto } from './dto/update-price.dto';
 
 @Controller('prices')
 export class PricesController {
@@ -53,5 +64,19 @@ export class PricesController {
     @Body() dto: CreatePriceAlertDto,
   ): Promise<AlertSetting> {
     return await this.pricesService.setPriceAlertLimit(dto);
+  }
+  @Patch('update-limit/:id')
+  async updatePriceAlertLimit(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdatePriceAlertDto,
+  ): Promise<AlertSetting> {
+    return await this.pricesService.updatePriceAlertLimit(id, dto);
+  }
+  // In prices.controller.ts
+  @Delete('delete-limit/:id')
+  async deletePriceAlertLimit(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<boolean> {
+    return await this.pricesService.deletePriceAlertLimit(id);
   }
 }
